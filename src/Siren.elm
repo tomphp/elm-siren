@@ -1,7 +1,7 @@
 module Siren exposing (Entity, decodeJson)
 
 import Set exposing (Set)
-import Json.Decode exposing (Decoder , list , field, string , map , decodeString)   
+import Json.Decode exposing (Decoder , list , field, string , map , maybe , decodeString)   
 
 -- type alias Rel = String
 -- type alias Class = String
@@ -23,9 +23,16 @@ decodeJson json =
         Ok e -> Just e
         _    -> Nothing
 
+
 entityDecoder : Decoder Entity
 entityDecoder =
-  field "rel" (list string)
-  |> map Set.fromList
+  maybe (field "rel" (list string))
+  |> map listToSet
   |> map Entity
 
+
+listToSet : Maybe (List comparable) -> Set comparable
+listToSet list =
+  case list of
+    Just l  -> Set.fromList l
+    Nothing -> Set.empty

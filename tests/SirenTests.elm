@@ -15,6 +15,11 @@ all =
                     Expect.equal
                         (Just (Entity (Set.fromList ["example1", "example2"])))
                         (decodeJson "{\"rel\": [\"example1\", \"example2\"]}")
+            , test "It defauls to the rels to an empty set" <|
+                \() ->
+                    Expect.equal
+                        (Just (Entity Set.empty))
+                        (decodeJson "{}")
             ]
 
         ]
