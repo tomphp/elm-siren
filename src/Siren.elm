@@ -20,16 +20,7 @@ type alias Entity =
 
 decodeJson : String -> Maybe Entity
 decodeJson json =
-    let
-        result =
-            decodeString entityDecoder json
-    in
-        case result of
-            Ok e ->
-                Just e
-
-            _ ->
-                Nothing
+    Result.toMaybe (decodeString entityDecoder json)
 
 
 entityDecoder : Decoder Entity
