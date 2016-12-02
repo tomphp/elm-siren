@@ -1,7 +1,7 @@
 module Siren exposing (Entity, decodeJson)
 
-import Set exposing (Set)
 import Json.Decode exposing (..)
+import Set exposing (Set)
 
 
 -- type alias Rel = String
