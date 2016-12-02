@@ -41,19 +41,21 @@ entityDecoder =
 
 
 setFieldDecoder : String -> Decoder (Set String)
-setFieldDecoder name =
-    field name (list string)
-    |> maybe
-    |> map withEmptyListDefault
-    |> map Set.fromList
+setFieldDecoder =
+    optionalCollectionDecoder (list string) Set.fromList
 
 
 dictFieldDecoder : String -> Decoder (Dict String String)
-dictFieldDecoder name =
-    field name (keyValuePairs string)
+dictFieldDecoder =
+    optionalCollectionDecoder (keyValuePairs string) dictFromPairs
+
+
+optionalCollectionDecoder : Decoder (List a) -> (List a -> b) -> String -> Decoder b
+optionalCollectionDecoder fieldDecoder constructor name =
+    field name fieldDecoder
     |> maybe
     |> map withEmptyListDefault
-    |> map dictFromPairs
+    |> map constructor
 
 
 dictFromPairs : List (String, String) -> Dict String String
