@@ -42,29 +42,23 @@ entityDecoder =
 
 setFieldDecoder : String -> Decoder (Set String)
 setFieldDecoder name =
-    map listToSet (maybe (field name (list string)))
-
-
-listToSet : Maybe (List comparable) -> Set comparable
-listToSet list =
-    case list of
-        Just l ->
-            Set.fromList l
-
-        Nothing ->
-            Set.empty
+    field name (list string)
+    |> maybe
+    |> map withEmptyListDefault
+    |> map Set.fromList
 
 
 dictFieldDecoder : String -> Decoder (Dict String String)
 dictFieldDecoder name =
-    map kvPairsToDict (maybe (field name (keyValuePairs string)))
+    field name (keyValuePairs string)
+    |> maybe
+    |> map withEmptyListDefault
+    |> map dictFromPairs
 
 
-kvPairsToDict : Maybe (List ( String, String )) -> Dict String String
-kvPairsToDict mp =
-    case mp of
-        Just pairs ->
-            List.foldr (\( k, v ) dict -> Dict.insert k v dict) Dict.empty pairs
+dictFromPairs : List (String, String) -> Dict String String
+dictFromPairs = List.foldr (\( k, v ) -> Dict.insert k v) Dict.empty
 
-        Nothing ->
-            Dict.empty
+
+withEmptyListDefault : Maybe (List a) -> List a
+withEmptyListDefault = Maybe.withDefault []
