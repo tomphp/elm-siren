@@ -1,5 +1,6 @@
 module SirenTests exposing (..)
 
+import Dict exposing (Dict)
 import Expect
 import Maybe exposing (map)
 import Set exposing (Set)
@@ -38,6 +39,20 @@ all =
                 , test "It is empty if the class field was not defined" <|
                     \() ->
                         Expect.equal (Just Set.empty) (map (\e -> e.classes) (decodeJson "{}"))
+                ]
+            , describe "properties"
+                [ test "It is an empty Dict if properties field is not defined" <|
+                    \() ->
+                        Expect.equal (Just Dict.empty) (map (\e -> e.properties) (decodeJson "{}"))
+                , test "It can contain a string" <|
+                    \() ->
+                        let
+                            json =
+                                "{\"properties\": {\"property-name\": \"string-value\"}}"
+                        in
+                            Expect.equal
+                                (Just (Dict.singleton "property-name" "string-value"))
+                                (map (\e -> e.properties) (decodeJson json))
                 ]
             ]
         ]

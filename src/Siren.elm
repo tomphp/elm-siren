@@ -1,11 +1,10 @@
 module Siren exposing (Entity, decodeJson)
 
+import Dict exposing (Dict)
 import Json.Decode exposing (..)
 import Set exposing (Set)
 
 
--- type alias Rel = String
--- type alias Class = String
 -- type Property = String value | Int value | Float value | Boolean value
 
 
@@ -14,8 +13,8 @@ type alias Entity =
         Set String
     , classes :
         Set String
-        -- , properties: Dict String Property
-        -- , links: Dict String Link
+    , properties :
+        Dict String String
     }
 
 
@@ -35,9 +34,10 @@ decodeJson json =
 
 entityDecoder : Decoder Entity
 entityDecoder =
-    map2 Entity
+    map3 Entity
         (setFieldDecoder "rel")
         (setFieldDecoder "class")
+        (dictFieldDecoder "properties")
 
 
 setFieldDecoder : String -> Decoder (Set String)
@@ -53,3 +53,18 @@ listToSet list =
 
         Nothing ->
             Set.empty
+
+
+dictFieldDecoder : String -> Decoder (Dict String String)
+dictFieldDecoder name =
+    map kvPairsToDict (maybe (field name (keyValuePairs string)))
+
+
+kvPairsToDict : Maybe (List ( String, String )) -> Dict String String
+kvPairsToDict mp =
+    case mp of
+        Just pairs ->
+            List.foldr (\( k, v ) dict -> Dict.insert k v dict) Dict.empty pairs
+
+        Nothing ->
+            Dict.empty
