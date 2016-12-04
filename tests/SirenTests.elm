@@ -51,7 +51,7 @@ all =
                                 "{\"properties\": {\"property-name\": \"string-value\"}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" (StringProperty "string-value")))
+                                (Ok (Dict.singleton "property-name" (StringValue "string-value")))
                                 (map (\e -> e.properties) (decodeJson json))
                 , test "It can contain an integer property" <|
                     \() ->
@@ -60,7 +60,7 @@ all =
                                 "{\"properties\": {\"property-name\": 101}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" (IntProperty 101)))
+                                (Ok (Dict.singleton "property-name" (IntValue 101)))
                                 (map (\e -> e.properties) (decodeJson json))
                 , test "It can contain a float property" <|
                     \() ->
@@ -69,7 +69,7 @@ all =
                                 "{\"properties\": {\"property-name\": 1.01}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" (FloatProperty 1.01)))
+                                (Ok (Dict.singleton "property-name" (FloatValue 1.01)))
                                 (map (\e -> e.properties) (decodeJson json))
                 , test "It can contain a boolean property" <|
                     \() ->
@@ -78,7 +78,7 @@ all =
                                 "{\"properties\": {\"property-name\": true}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" (BoolProperty True)))
+                                (Ok (Dict.singleton "property-name" (BoolValue True)))
                                 (map (\e -> e.properties) (decodeJson json))
                 , test "It can contain a null property" <|
                     \() ->
@@ -87,7 +87,7 @@ all =
                                 "{\"properties\": {\"property-name\": null}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" NullProperty))
+                                (Ok (Dict.singleton "property-name" NullValue))
                                 (map (\e -> e.properties) (decodeJson json))
                 ]
             ]
