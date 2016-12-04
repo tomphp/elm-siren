@@ -1,11 +1,11 @@
-module Siren exposing (Entity, decodeJson)
+module Siren exposing (Entity, decodeJson, Property(..))
 
 import Dict exposing (Dict)
 import Json.Decode exposing (..)
 import Set exposing (Set)
 
 
--- type Property = String value | Int value | Float value | Boolean value
+type Property = StringProperty String | IntProperty Int
 
 
 type alias Entity =
@@ -14,7 +14,7 @@ type alias Entity =
     , classes :
         Set String
     , properties :
-        Dict String String
+        Dict String Property
     }
 
 
@@ -36,10 +36,18 @@ setFieldDecoder =
     optionalCollectionDecoder (list string) Set.fromList
 
 
-dictFieldDecoder : String -> Decoder (Dict String String)
+dictFieldDecoder : String -> Decoder (Dict String Property)
 dictFieldDecoder =
-    optionalCollectionDecoder (keyValuePairs string) dictFromPairs
+    optionalCollectionDecoder propertyDecoder dictFromPairs
 
+propertyDecoder : Decoder (List (String, Property))
+propertyDecoder = map convertProperties (keyValuePairs string)
+
+convertProperties : List (String, String) -> List (String, Property)
+convertProperties = List.map stringToProperty
+
+stringToProperty : (String, String) -> (String, Property)
+stringToProperty (k, v) = (k, StringProperty v)
 
 optionalCollectionDecoder : Decoder (List a) -> (List a -> b) -> String -> Decoder b
 optionalCollectionDecoder fieldDecoder constructor name =
@@ -49,8 +57,12 @@ optionalCollectionDecoder fieldDecoder constructor name =
     |> map constructor
 
 
-dictFromPairs : List (String, String) -> Dict String String
-dictFromPairs = List.foldr (\( k, v ) -> Dict.insert k v) Dict.empty
+dictFromPairs : List (String, Property) -> Dict String Property
+dictFromPairs = List.foldr insertIntoDict Dict.empty
+
+
+insertIntoDict : (comparable, Property) -> Dict comparable Property -> Dict comparable Property
+insertIntoDict (k, v) = Dict.insert k v
 
 
 withEmptyListDefault : Maybe (List a) -> List a
