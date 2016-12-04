@@ -50,14 +50,15 @@ optionalCollectionDecoder fieldDecoder constructor name =
 
 
 propertiesDecoder : Decoder (List (String, Property))
-propertiesDecoder = keyValuePairs (oneOf [stringProperty, intProperty])
+propertiesDecoder = keyValuePairs propertyDecoder
 
 
-stringProperty : Decoder Property
-stringProperty = map StringProperty string
+propertyDecoder : Decoder Property
+propertyDecoder =
+    oneOf [ map StringProperty string
+          , map IntProperty int
+          ]
 
-intProperty : Decoder Property
-intProperty = map IntProperty int
 
 dictFromPairs : List (String, Property) -> Dict String Property
 dictFromPairs = List.foldr insertIntoDict Dict.empty
