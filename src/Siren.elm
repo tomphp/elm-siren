@@ -40,23 +40,27 @@ entityDecoder =
 
 
 set : Decoder comparable -> Decoder (Set comparable)
-set = list >> map Set.fromList 
+set =
+    list >> map Set.fromList
 
 
 setFieldDecoder : String -> Decoder (Set String)
-setFieldDecoder = fieldWithDefault (set string) Set.empty
+setFieldDecoder =
+    decodeWithDefault (set string) Set.empty
 
 
 dictFieldDecoder : String -> Decoder (Dict String Value)
-dictFieldDecoder = fieldWithDefault (dict valueDecoder) Dict.empty
+dictFieldDecoder =
+    decodeWithDefault (dict valueDecoder) Dict.empty
 
 
 linksFieldDecoder : String -> Decoder (Dict String String)
-linksFieldDecoder = fieldWithDefault linksDecoder Dict.empty
+linksFieldDecoder =
+    decodeWithDefault linksDecoder Dict.empty
 
 
-fieldWithDefault : Decoder a -> a -> String -> Decoder a
-fieldWithDefault decoder default name =
+decodeWithDefault : Decoder a -> a -> String -> Decoder a
+decodeWithDefault decoder default name =
     field name decoder |> withDefault default
 
 
@@ -77,16 +81,20 @@ valueDecoder =
 
 
 linksDecoder : Decoder (Dict String String)
-linksDecoder = map (List.concat >> Dict.fromList) <| list linkDecoder
+linksDecoder =
+    linkDecoder
+        |> list
+        |> map (List.concat >> Dict.fromList)
 
 
-linkDecoder : Decoder (List (String, String))
-linkDecoder = 
+linkDecoder : Decoder (List ( String, String ))
+linkDecoder =
     map expandTuples <|
         map2 (,)
             (field "rel" (list string))
             (field "href" string)
 
 
-expandTuples : (List a, b) -> List (a, b)
-expandTuples (keys, value) = List.map (\k -> (k, value)) keys
+expandTuples : ( List a, b ) -> List ( a, b )
+expandTuples ( keys, value ) =
+    List.map (\k -> ( k, value )) keys
