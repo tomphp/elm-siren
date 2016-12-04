@@ -32,19 +32,18 @@ entityDecoder =
 
 
 setFieldDecoder : String -> Decoder (Set String)
-setFieldDecoder name =
-    oneOf [ optionalCollectionDecoder (list string) Set.fromList name, succeed Set.empty ]
+setFieldDecoder =
+    optionalCollectionDecoder (list string) Set.fromList Set.empty
 
 
 dictFieldDecoder : String -> Decoder (Dict String Property)
-dictFieldDecoder name =
-    oneOf [ optionalCollectionDecoder propertiesDecoder dictFromPairs name, succeed Dict.empty ]
+dictFieldDecoder =
+    optionalCollectionDecoder propertiesDecoder dictFromPairs Dict.empty
 
 
-optionalCollectionDecoder : Decoder (List a) -> (List a -> b) -> String -> Decoder b
-optionalCollectionDecoder fieldDecoder constructor name =
-    field name fieldDecoder
-    |> map constructor
+optionalCollectionDecoder : Decoder (List a) -> (List a -> b) -> b -> String -> Decoder b
+optionalCollectionDecoder fieldDecoder constructor default name =
+    oneOf [ field name fieldDecoder |> map constructor, succeed default ]
 
 
 propertiesDecoder : Decoder (List (String, Property))
