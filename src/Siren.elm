@@ -48,7 +48,7 @@ setFieldDecoder = fieldWithDefault (set string) Set.empty
 
 
 dictFieldDecoder : String -> Decoder (Dict String Value)
-dictFieldDecoder = fieldWithDefault propertiesDecoder Dict.empty
+dictFieldDecoder = fieldWithDefault (dict valueDecoder) Dict.empty
 
 
 linksFieldDecoder : String -> Decoder (Dict String String)
@@ -65,12 +65,8 @@ withDefault default decoder =
     oneOf [ decoder, succeed default ]
 
 
-propertiesDecoder : Decoder (Dict String Value)
-propertiesDecoder = dict propertyDecoder
-
-
-propertyDecoder : Decoder Value
-propertyDecoder =
+valueDecoder : Decoder Value
+valueDecoder =
     oneOf
         [ map StringValue string
         , map IntValue int
@@ -81,16 +77,16 @@ propertyDecoder =
 
 
 linksDecoder : Decoder (Dict String String)
-linksDecoder = map (List.concat >> Dict.fromList) (list linkDecoder)
+linksDecoder = map (List.concat >> Dict.fromList) <| list linkDecoder
 
 
 linkDecoder : Decoder (List (String, String))
 linkDecoder = 
-    map linkParts <|
+    map expandTuples <|
         map2 (,)
             (field "rel" (list string))
             (field "href" string)
 
 
-linkParts : (List a, b) -> List (a, b)
-linkParts (keys, value) = List.map (\k -> (k, value)) keys
+expandTuples : (List a, b) -> List (a, b)
+expandTuples (keys, value) = List.map (\k -> (k, value)) keys
