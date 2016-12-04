@@ -39,38 +39,29 @@ entityDecoder =
         (linksFieldDecoder "links")
 
 
+set : Decoder comparable -> Decoder (Set comparable)
+set = list >> map Set.fromList 
+
+
 setFieldDecoder : String -> Decoder (Set String)
-setFieldDecoder name =
-    field name (list string)
-        |> map Set.fromList
-        |> withDefaultDecoder Set.empty
+setFieldDecoder = fieldWithDefault (set string) Set.empty
 
 
 dictFieldDecoder : String -> Decoder (Dict String Value)
-dictFieldDecoder name =
-    field name propertiesDecoder
-        |> withDefaultDecoder Dict.empty
+dictFieldDecoder = fieldWithDefault propertiesDecoder Dict.empty
 
 
 linksFieldDecoder : String -> Decoder (Dict String String)
-linksFieldDecoder name =
-    field name linksDecoder
-        |> withDefaultDecoder Dict.empty
+linksFieldDecoder = fieldWithDefault linksDecoder Dict.empty
 
 
-linksDecoder : Decoder (Dict String String)
-linksDecoder = map Dict.fromList (list linkDecoder)
+fieldWithDefault : Decoder a -> a -> String -> Decoder a
+fieldWithDefault decoder default name =
+    field name decoder |> withDefault default
 
 
-linkDecoder : Decoder (String, String)
-linkDecoder = 
-    map2 (,)
-        (map (Maybe.withDefault "unknown" << List.head) (field "rel" (list string)))
-        (field "href" string)
-
-
-withDefaultDecoder : a -> Decoder a -> Decoder a
-withDefaultDecoder default decoder =
+withDefault : a -> Decoder a -> Decoder a
+withDefault default decoder =
     oneOf [ decoder, succeed default ]
 
 
@@ -87,3 +78,19 @@ propertyDecoder =
         , map BoolValue bool
         , null NullValue
         ]
+
+
+linksDecoder : Decoder (Dict String String)
+linksDecoder = map (List.concat >> Dict.fromList) (list linkDecoder)
+
+
+linkDecoder : Decoder (List (String, String))
+linkDecoder = 
+    map linkParts <|
+        map2 (,)
+            (field "rel" (list string))
+            (field "href" string)
+
+
+linkParts : (List a, b) -> List (a, b)
+linkParts (keys, value) = List.map (\k -> (k, value)) keys

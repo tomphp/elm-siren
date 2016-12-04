@@ -109,6 +109,15 @@ all =
                             Expect.equal
                                 (Ok <| Dict.singleton "self" "http://example.com")
                                 (map .links <| decodeJson json)
+                , test "Adds a link with multiple rels to the dictionary" <|
+                    \() ->
+                        let
+                            json =
+                                "{\"links\": [{\"rel\": [\"rel1\", \"rel2\"], \"href\": \"http://example.com\"}]}"
+                        in
+                            Expect.equal
+                                (Ok <| Dict.fromList [("rel1", "http://example.com"), ("rel2", "http://example.com")])
+                                (map .links <| decodeJson json)
                 ]
             ]
         ]
