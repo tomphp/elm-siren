@@ -20,9 +20,9 @@ type alias Entity =
     }
 
 
-decodeJson : String -> Maybe Entity
+decodeJson : String -> Result String Entity
 decodeJson json =
-    Result.toMaybe (decodeString entityDecoder json)
+    decodeString entityDecoder json
 
 
 entityDecoder : Decoder Entity
