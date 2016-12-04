@@ -2,6 +2,7 @@ module Siren exposing (Entity, decodeJson, Value(..))
 
 import Dict exposing (Dict)
 import Json.Decode exposing (..)
+import Json.Decode.Extra exposing (set)
 import Set exposing (Set)
 
 
@@ -37,11 +38,6 @@ entityDecoder =
         (setFieldDecoder "class")
         (dictFieldDecoder "properties")
         (linksFieldDecoder "links")
-
-
-set : Decoder comparable -> Decoder (Set comparable)
-set =
-    list >> map Set.fromList
 
 
 setFieldDecoder : String -> Decoder (Set String)
