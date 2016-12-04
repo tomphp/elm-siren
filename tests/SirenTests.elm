@@ -20,11 +20,11 @@ all =
                                 "{\"rel\": [\"example1\", \"example2\"]}"
                         in
                             Expect.equal
-                                (Ok (Set.fromList [ "example1", "example2" ]))
-                                (map (\e -> e.rels) (decodeJson json))
+                                (Ok <| Set.fromList [ "example1", "example2" ])
+                                (map .rels <| decodeJson json)
                 , test "It is empty if the rel field was not defined" <|
                     \() ->
-                        Expect.equal (Ok Set.empty) (map (\e -> e.rels) (decodeJson "{}"))
+                        Expect.equal (Ok Set.empty) (map .rels <| decodeJson "{}")
                 ]
             , describe "classes"
                 [ test "It is a Set of classes" <|
@@ -34,16 +34,16 @@ all =
                                 "{\"class\": [\"example1\", \"example2\"]}"
                         in
                             Expect.equal
-                                (Ok (Set.fromList [ "example1", "example2" ]))
-                                (map (\e -> e.classes) (decodeJson json))
+                                (Ok <| Set.fromList [ "example1", "example2" ])
+                                (map .classes <| decodeJson json)
                 , test "It is empty if the class field was not defined" <|
                     \() ->
-                        Expect.equal (Ok Set.empty) (map (\e -> e.classes) (decodeJson "{}"))
+                        Expect.equal (Ok Set.empty) (map .classes <| decodeJson "{}")
                 ]
             , describe "properties"
                 [ test "It is an empty Dict if properties field is not defined" <|
                     \() ->
-                        Expect.equal (Ok Dict.empty) (map (\e -> e.properties) (decodeJson "{}"))
+                        Expect.equal (Ok Dict.empty) (map .properties <| decodeJson "{}")
                 , test "It can contain a string property" <|
                     \() ->
                         let
@@ -51,8 +51,8 @@ all =
                                 "{\"properties\": {\"property-name\": \"string-value\"}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" (StringValue "string-value")))
-                                (map (\e -> e.properties) (decodeJson json))
+                                (Ok <| Dict.singleton "property-name" <| StringValue "string-value")
+                                (map .properties <| decodeJson json)
                 , test "It can contain an integer property" <|
                     \() ->
                         let
@@ -60,8 +60,8 @@ all =
                                 "{\"properties\": {\"property-name\": 101}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" (IntValue 101)))
-                                (map (\e -> e.properties) (decodeJson json))
+                                (Ok <| Dict.singleton "property-name" <| IntValue 101)
+                                (map .properties <| decodeJson json)
                 , test "It can contain a float property" <|
                     \() ->
                         let
@@ -69,8 +69,8 @@ all =
                                 "{\"properties\": {\"property-name\": 1.01}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" (FloatValue 1.01)))
-                                (map (\e -> e.properties) (decodeJson json))
+                                (Ok <| Dict.singleton "property-name" <| FloatValue 1.01)
+                                (map .properties <| decodeJson json)
                 , test "It can contain a boolean property" <|
                     \() ->
                         let
@@ -78,8 +78,8 @@ all =
                                 "{\"properties\": {\"property-name\": true}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" (BoolValue True)))
-                                (map (\e -> e.properties) (decodeJson json))
+                                (Ok <| Dict.singleton "property-name" <| BoolValue True)
+                                (map .properties <| decodeJson json)
                 , test "It can contain a null property" <|
                     \() ->
                         let
@@ -87,8 +87,8 @@ all =
                                 "{\"properties\": {\"property-name\": null}}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "property-name" NullValue))
-                                (map (\e -> e.properties) (decodeJson json))
+                                (Ok <| Dict.singleton "property-name" NullValue)
+                                (map .properties <| decodeJson json)
                 ]
             , describe "links"
                 [ test "It is a dict of strings" <|
@@ -98,8 +98,8 @@ all =
                                 "{}"
                         in
                             Expect.equal
-                                (Ok (Dict.empty))
-                                (map (\e -> e.links) (decodeJson json))
+                                (Ok <| Dict.empty)
+                                (map .links <| decodeJson json)
                 , test "Adds a link to the dictionary" <|
                     \() ->
                         let
@@ -107,8 +107,8 @@ all =
                                 "{\"links\": [{\"rel\": [\"self\"], \"href\": \"http://example.com\"}]}"
                         in
                             Expect.equal
-                                (Ok (Dict.singleton "self" "http://example.com"))
-                                (map (\e -> e.links) (decodeJson json))
+                                (Ok <| Dict.singleton "self" "http://example.com")
+                                (map .links <| decodeJson json)
                 ]
             ]
         ]
