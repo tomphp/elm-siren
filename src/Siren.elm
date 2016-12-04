@@ -1,4 +1,11 @@
-module Siren exposing (Entity, decodeJson, Value(..))
+module Siren exposing ( Entity
+                      , decodeJson
+                      , Value(..)
+                      , rels
+                      , classes
+                      , properties
+                      , links
+                      )
 
 import Dict exposing (Dict)
 import Json.Decode exposing (..)
@@ -14,16 +21,41 @@ type Value
     | NullValue
 
 
-type alias Entity =
-    { rels :
-        Set String
-    , classes :
-        Set String
-    , properties :
-        Dict String Value
-    , links :
-        Dict String String
-    }
+type alias Rel = String
+type alias Rels = Set String
+type alias Class = String
+type alias Classes = Set String
+type alias Property = Value
+type alias Properties = Dict String Value
+type alias Link = String
+type alias Links = Dict String Link
+
+
+type Entity = Entity Rels Classes Properties Links
+
+
+rels : Entity -> Rels
+rels e =
+    case e of
+        Entity rels _ _ _ -> rels
+
+
+classes : Entity -> Classes
+classes e =
+    case e of
+        Entity _ classes _ _ -> classes
+
+
+properties : Entity -> Properties
+properties e =
+    case e of
+        Entity _ _ properties _ -> properties
+
+
+links : Entity -> Links
+links e =
+    case e of
+        Entity _ _ _ links -> links
 
 
 decodeJson : String -> Result String Entity
