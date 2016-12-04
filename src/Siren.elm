@@ -20,6 +20,8 @@ type alias Entity =
         Set String
     , properties :
         Dict String Value
+    , links :
+        Dict String String
     }
 
 
@@ -30,10 +32,11 @@ decodeJson json =
 
 entityDecoder : Decoder Entity
 entityDecoder =
-    map3 Entity
+    map4 Entity
         (setFieldDecoder "rel")
         (setFieldDecoder "class")
         (dictFieldDecoder "properties")
+        (linksFieldDecoder "links")
 
 
 setFieldDecoder : String -> Decoder (Set String)
@@ -49,14 +52,30 @@ dictFieldDecoder name =
         |> withDefaultDecoder Dict.empty
 
 
+linksFieldDecoder : String -> Decoder (Dict String String)
+linksFieldDecoder name =
+    field name linksDecoder
+        |> withDefaultDecoder Dict.empty
+
+
+linksDecoder : Decoder (Dict String String)
+linksDecoder = map Dict.fromList (list linkDecoder)
+
+
+linkDecoder : Decoder (String, String)
+linkDecoder = 
+    map2 (,)
+        (map (Maybe.withDefault "unknown" << List.head) (field "rel" (list string)))
+        (field "href" string)
+
+
 withDefaultDecoder : a -> Decoder a -> Decoder a
 withDefaultDecoder default decoder =
     oneOf [ decoder, succeed default ]
 
 
 propertiesDecoder : Decoder (Dict String Value)
-propertiesDecoder =
-    dict propertyDecoder
+propertiesDecoder = dict propertyDecoder
 
 
 propertyDecoder : Decoder Value

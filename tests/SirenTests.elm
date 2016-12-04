@@ -90,5 +90,25 @@ all =
                                 (Ok (Dict.singleton "property-name" NullValue))
                                 (map (\e -> e.properties) (decodeJson json))
                 ]
+            , describe "links"
+                [ test "It is a dict of strings" <|
+                    \() ->
+                        let
+                            json =
+                                "{}"
+                        in
+                            Expect.equal
+                                (Ok (Dict.empty))
+                                (map (\e -> e.links) (decodeJson json))
+                , test "Adds a link to the dictionary" <|
+                    \() ->
+                        let
+                            json =
+                                "{\"links\": [{\"rel\": [\"self\"], \"href\": \"http://example.com\"}]}"
+                        in
+                            Expect.equal
+                                (Ok (Dict.singleton "self" "http://example.com"))
+                                (map (\e -> e.links) (decodeJson json))
+                ]
             ]
         ]
