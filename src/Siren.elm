@@ -32,20 +32,18 @@ entityDecoder =
 
 
 setFieldDecoder : String -> Decoder (Set String)
-setFieldDecoder =
-    optionalCollectionDecoder (list string) Set.fromList
+setFieldDecoder name =
+    oneOf [ optionalCollectionDecoder (list string) Set.fromList name, succeed Set.empty ]
 
 
 dictFieldDecoder : String -> Decoder (Dict String Property)
-dictFieldDecoder =
-    optionalCollectionDecoder propertiesDecoder dictFromPairs
+dictFieldDecoder name =
+    oneOf [ optionalCollectionDecoder propertiesDecoder dictFromPairs name, succeed Dict.empty ]
 
 
 optionalCollectionDecoder : Decoder (List a) -> (List a -> b) -> String -> Decoder b
 optionalCollectionDecoder fieldDecoder constructor name =
     field name fieldDecoder
-    |> maybe
-    |> map withEmptyListDefault
     |> map constructor
 
 
@@ -66,7 +64,3 @@ dictFromPairs = List.foldr insertIntoDict Dict.empty
 
 insertIntoDict : (comparable, Property) -> Dict comparable Property -> Dict comparable Property
 insertIntoDict (k, v) = Dict.insert k v
-
-
-withEmptyListDefault : Maybe (List a) -> List a
-withEmptyListDefault = Maybe.withDefault []
