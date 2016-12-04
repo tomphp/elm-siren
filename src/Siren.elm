@@ -38,16 +38,8 @@ setFieldDecoder =
 
 dictFieldDecoder : String -> Decoder (Dict String Property)
 dictFieldDecoder =
-    optionalCollectionDecoder propertyDecoder dictFromPairs
+    optionalCollectionDecoder propertiesDecoder dictFromPairs
 
-propertyDecoder : Decoder (List (String, Property))
-propertyDecoder = map convertProperties (keyValuePairs string)
-
-convertProperties : List (String, String) -> List (String, Property)
-convertProperties = List.map stringToProperty
-
-stringToProperty : (String, String) -> (String, Property)
-stringToProperty (k, v) = (k, StringProperty v)
 
 optionalCollectionDecoder : Decoder (List a) -> (List a -> b) -> String -> Decoder b
 optionalCollectionDecoder fieldDecoder constructor name =
@@ -56,6 +48,16 @@ optionalCollectionDecoder fieldDecoder constructor name =
     |> map withEmptyListDefault
     |> map constructor
 
+
+propertiesDecoder : Decoder (List (String, Property))
+propertiesDecoder = keyValuePairs (oneOf [stringProperty, intProperty])
+
+
+stringProperty : Decoder Property
+stringProperty = map StringProperty string
+
+intProperty : Decoder Property
+intProperty = map IntProperty int
 
 dictFromPairs : List (String, Property) -> Dict String Property
 dictFromPairs = List.foldr insertIntoDict Dict.empty

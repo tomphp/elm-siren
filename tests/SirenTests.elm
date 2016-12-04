@@ -53,15 +53,15 @@ all =
                             Expect.equal
                                 (Just (Dict.singleton "property-name" (StringProperty "string-value")))
                                 (map (\e -> e.properties) (decodeJson json))
-                -- , test "It can contain an integer property" <|
-                --     \() ->
-                --         let
-                --             json =
-                --                 "{\"properties\": {\"property-name\": 101}}"
-                --         in
-                --             Expect.equal
-                --                 (Just (Dict.singleton "property-name" (IntProperty 101)))
-                --                 (map (\e -> e.properties) (decodeJson json))
+                , test "It can contain an integer property" <|
+                    \() ->
+                        let
+                            json =
+                                "{\"properties\": {\"property-name\": 101}}"
+                        in
+                            Expect.equal
+                                (Just (Dict.singleton "property-name" (IntProperty 101)))
+                                (map (\e -> e.properties) (decodeJson json))
                 ]
             ]
         ]
