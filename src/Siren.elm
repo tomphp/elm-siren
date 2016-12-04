@@ -8,6 +8,9 @@ import Set exposing (Set)
 type Property
     = StringProperty String
     | IntProperty Int
+    | FloatProperty Float
+    | BoolProperty Bool
+    | NullProperty
 
 
 type alias Entity =
@@ -61,4 +64,7 @@ propertyDecoder =
     oneOf
         [ map StringProperty string
         , map IntProperty int
+        , map FloatProperty float
+        , map BoolProperty bool
+        , null NullProperty
         ]
