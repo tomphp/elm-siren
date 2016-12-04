@@ -5,7 +5,9 @@ import Json.Decode exposing (..)
 import Set exposing (Set)
 
 
-type Property = StringProperty String | IntProperty Int
+type Property
+    = StringProperty String
+    | IntProperty Int
 
 
 type alias Entity =
@@ -32,34 +34,31 @@ entityDecoder =
 
 
 setFieldDecoder : String -> Decoder (Set String)
-setFieldDecoder =
-    optionalCollectionDecoder (list string) Set.fromList Set.empty
+setFieldDecoder name =
+    field name (list string)
+        |> map Set.fromList
+        |> withDefaultDecoder Set.empty
 
 
 dictFieldDecoder : String -> Decoder (Dict String Property)
-dictFieldDecoder =
-    optionalCollectionDecoder propertiesDecoder dictFromPairs Dict.empty
+dictFieldDecoder name =
+    field name propertiesDecoder
+        |> withDefaultDecoder Dict.empty
 
 
-optionalCollectionDecoder : Decoder (List a) -> (List a -> b) -> b -> String -> Decoder b
-optionalCollectionDecoder fieldDecoder constructor default name =
-    oneOf [ field name fieldDecoder |> map constructor, succeed default ]
+withDefaultDecoder : a -> Decoder a -> Decoder a
+withDefaultDecoder default decoder =
+    oneOf [ decoder, succeed default ]
 
 
-propertiesDecoder : Decoder (List (String, Property))
-propertiesDecoder = keyValuePairs propertyDecoder
+propertiesDecoder : Decoder (Dict String Property)
+propertiesDecoder =
+    dict propertyDecoder
 
 
 propertyDecoder : Decoder Property
 propertyDecoder =
-    oneOf [ map StringProperty string
-          , map IntProperty int
-          ]
-
-
-dictFromPairs : List (String, Property) -> Dict String Property
-dictFromPairs = List.foldr insertIntoDict Dict.empty
-
-
-insertIntoDict : (comparable, Property) -> Dict comparable Property -> Dict comparable Property
-insertIntoDict (k, v) = Dict.insert k v
+    oneOf
+        [ map StringProperty string
+        , map IntProperty int
+        ]
