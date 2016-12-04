@@ -119,5 +119,16 @@ all =
                                 (Ok <| Dict.fromList [("rel1", "http://example.com"), ("rel2", "http://example.com")])
                                 (map links <| decodeJson json)
                 ]
+            , describe "entities"
+                [ test "It is a list" <|
+                    \() ->
+                        let
+                            json =
+                                "{}"
+                        in
+                            Expect.equal
+                                (Ok <| [])
+                                (map entities <| decodeJson json)
+                ]
             ]
         ]

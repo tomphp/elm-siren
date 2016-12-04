@@ -5,6 +5,7 @@ module Siren exposing ( Entity
                       , classes
                       , properties
                       , links
+                      , entities
                       )
 
 import Dict exposing (Dict)
@@ -29,33 +30,40 @@ type alias Property = Value
 type alias Properties = Dict String Value
 type alias Link = String
 type alias Links = Dict String Link
+type alias Entities = List Entity
 
 
-type Entity = Entity Rels Classes Properties Links
+type Entity = Entity Rels Classes Properties Links Entities
 
 
 rels : Entity -> Rels
 rels e =
     case e of
-        Entity rels _ _ _ -> rels
+        Entity rels _ _ _ _ -> rels
 
 
 classes : Entity -> Classes
 classes e =
     case e of
-        Entity _ classes _ _ -> classes
+        Entity _ classes _ _ _ -> classes
 
 
 properties : Entity -> Properties
 properties e =
     case e of
-        Entity _ _ properties _ -> properties
+        Entity _ _ properties _ _ -> properties
 
 
 links : Entity -> Links
 links e =
     case e of
-        Entity _ _ _ links -> links
+        Entity _ _ _ links _ -> links
+
+
+entities : Entity -> Entities
+entities e =
+    case e of
+        Entity _ _ _ _ entities -> entities
 
 
 decodeJson : String -> Result String Entity
@@ -65,11 +73,12 @@ decodeJson json =
 
 entityDecoder : Decoder Entity
 entityDecoder =
-    map4 Entity
+    map5 Entity
         (setFieldDecoder "rel")
         (setFieldDecoder "class")
         (dictFieldDecoder "properties")
         (linksFieldDecoder "links")
+        (succeed [])
 
 
 setFieldDecoder : String -> Decoder (Set String)
