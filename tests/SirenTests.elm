@@ -150,6 +150,31 @@ all =
                                     ]
                                 )
                                 (map entities <| decodeJson json)
+                , test "Can contain an entity link" <|
+                    \() ->
+                        let
+                            json =
+                                """
+                                { "entities": [ {
+                                    "rel": ["link-rel"],
+                                    "class": ["link-class"],
+                                    "href": "http://example.com/entity-link",
+                                    "type": "link/type",
+                                    "title": "Link Title"
+                                } ] }
+                                """
+                        in
+                            Expect.equal
+                                (Ok <|
+                                    [ EntityLink
+                                        (Set.singleton "link-rel")
+                                        (Set.singleton "link-class")
+                                        "http://example.com/entity-link"
+                                        (Just "link/type")
+                                        (Just "Link Title")
+                                    ]
+                                )
+                                (map entities <| decodeJson json)
                 ]
             ]
         ]

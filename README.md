@@ -4,9 +4,9 @@ An Elm parser for Siren APIs.
 ## TODO
 Remaining items for first release:
 
-- [ ] Add embedded entity representations
+- [x] Add embedded entity links
 - [ ] Add actions to entities
 - [ ] Add action fields
-- [ ] Add embedded entities
+- [x] Add embedded entity representations
 - [ ] Add list entity properties
 - [ ] Add object entity properties

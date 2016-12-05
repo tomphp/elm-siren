@@ -60,14 +60,22 @@ type alias Entities =
     List Entity
 
 
+type alias Href =
+    String
+
+
 type Entity
     = Entity Rels Classes Properties Links Entities
+    | EntityLink Rels Classes Href (Maybe String) (Maybe String)
 
 
 rels : Entity -> Rels
 rels e =
     case e of
         Entity rels _ _ _ _ ->
+            rels
+
+        EntityLink rels _ _ _ _ ->
             rels
 
 
@@ -77,12 +85,18 @@ classes e =
         Entity _ classes _ _ _ ->
             classes
 
+        EntityLink classes _ _ _ _ ->
+            classes
+
 
 properties : Entity -> Properties
 properties e =
     case e of
         Entity _ _ properties _ _ ->
             properties
+
+        EntityLink _ _ _ _ _ ->
+            Dict.empty
 
 
 links : Entity -> Links
@@ -91,12 +105,18 @@ links e =
         Entity _ _ _ links _ ->
             links
 
+        EntityLink _ _ _ _ _ ->
+            Dict.empty
+
 
 entities : Entity -> Entities
 entities e =
     case e of
         Entity _ _ _ _ entities ->
             entities
+
+        EntityLink _ _ _ _ _ ->
+            []
 
 
 decodeJson : String -> Result String Entity
@@ -114,6 +134,16 @@ entityDecoder =
         (lazy (\_ -> entitiesFieldDecoder "entities"))
 
 
+entityLinkDecoder : Decoder Entity
+entityLinkDecoder =
+    map5 EntityLink
+        (setFieldDecoder "rel")
+        (setFieldDecoder "class")
+        (field "href" string)
+        (maybe <| field "type" string)
+        (maybe <| field "title" string)
+
+
 setFieldDecoder : String -> Decoder (Set String)
 setFieldDecoder =
     decodeFieldWithDefault (set string) Set.empty
@@ -126,7 +156,9 @@ dictFieldDecoder =
 
 entitiesFieldDecoder : String -> Decoder (List Entity)
 entitiesFieldDecoder =
-    decodeFieldWithDefault (list entityDecoder) []
+    decodeFieldWithDefault
+        (list <| oneOf [ entityLinkDecoder, entityDecoder ])
+        []
 
 
 linksFieldDecoder : String -> Decoder (Dict String String)
