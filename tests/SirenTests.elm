@@ -116,7 +116,7 @@ all =
                                 "{\"links\": [{\"rel\": [\"rel1\", \"rel2\"], \"href\": \"http://example.com\"}]}"
                         in
                             Expect.equal
-                                (Ok <| Dict.fromList [("rel1", "http://example.com"), ("rel2", "http://example.com")])
+                                (Ok <| Dict.fromList [ ( "rel1", "http://example.com" ), ( "rel2", "http://example.com" ) ])
                                 (map links <| decodeJson json)
                 ]
             , describe "entities"
@@ -128,6 +128,27 @@ all =
                         in
                             Expect.equal
                                 (Ok <| [])
+                                (map entities <| decodeJson json)
+                , test "Can contain a complete entity" <|
+                    \() ->
+                        let
+                            json =
+                                """
+                                {
+                                    "entities": [ { "class": ["child-entity"] } ]
+                                }
+                                """
+                        in
+                            Expect.equal
+                                (Ok <|
+                                    [ Entity
+                                        Set.empty
+                                        (Set.singleton "child-entity")
+                                        Dict.empty
+                                        Dict.empty
+                                        []
+                                    ]
+                                )
                                 (map entities <| decodeJson json)
                 ]
             ]

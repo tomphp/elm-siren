@@ -1,12 +1,14 @@
-module Siren exposing ( Entity
-                      , decodeJson
-                      , Value(..)
-                      , rels
-                      , classes
-                      , properties
-                      , links
-                      , entities
-                      )
+module Siren
+    exposing
+        ( Entity(..)
+        , decodeJson
+        , Value(..)
+        , rels
+        , classes
+        , properties
+        , links
+        , entities
+        )
 
 import Dict exposing (Dict)
 import Json.Decode exposing (..)
@@ -22,48 +24,79 @@ type Value
     | NullValue
 
 
-type alias Rel = String
-type alias Rels = Set String
-type alias Class = String
-type alias Classes = Set String
-type alias Property = Value
-type alias Properties = Dict String Value
-type alias Link = String
-type alias Links = Dict String Link
-type alias Entities = List Entity
+type alias Rel =
+    String
 
 
-type Entity = Entity Rels Classes Properties Links Entities
+type alias Rels =
+    Set String
+
+
+type alias Class =
+    String
+
+
+type alias Classes =
+    Set String
+
+
+type alias Property =
+    Value
+
+
+type alias Properties =
+    Dict String Value
+
+
+type alias Link =
+    String
+
+
+type alias Links =
+    Dict String Link
+
+
+type alias Entities =
+    List Entity
+
+
+type Entity
+    = Entity Rels Classes Properties Links Entities
 
 
 rels : Entity -> Rels
 rels e =
     case e of
-        Entity rels _ _ _ _ -> rels
+        Entity rels _ _ _ _ ->
+            rels
 
 
 classes : Entity -> Classes
 classes e =
     case e of
-        Entity _ classes _ _ _ -> classes
+        Entity _ classes _ _ _ ->
+            classes
 
 
 properties : Entity -> Properties
 properties e =
     case e of
-        Entity _ _ properties _ _ -> properties
+        Entity _ _ properties _ _ ->
+            properties
 
 
 links : Entity -> Links
 links e =
     case e of
-        Entity _ _ _ links _ -> links
+        Entity _ _ _ links _ ->
+            links
 
 
 entities : Entity -> Entities
 entities e =
     case e of
-        Entity _ _ _ _ entities -> entities
+        Entity _ _ _ _ entities ->
+            entities
 
 
 decodeJson : String -> Result String Entity
@@ -78,26 +111,31 @@ entityDecoder =
         (setFieldDecoder "class")
         (dictFieldDecoder "properties")
         (linksFieldDecoder "links")
-        (succeed [])
+        (lazy (\_ -> entitiesFieldDecoder "entities"))
 
 
 setFieldDecoder : String -> Decoder (Set String)
 setFieldDecoder =
-    decodeWithDefault (set string) Set.empty
+    decodeFieldWithDefault (set string) Set.empty
 
 
 dictFieldDecoder : String -> Decoder (Dict String Value)
 dictFieldDecoder =
-    decodeWithDefault (dict valueDecoder) Dict.empty
+    decodeFieldWithDefault (dict valueDecoder) Dict.empty
+
+
+entitiesFieldDecoder : String -> Decoder (List Entity)
+entitiesFieldDecoder =
+    decodeFieldWithDefault (list entityDecoder) []
 
 
 linksFieldDecoder : String -> Decoder (Dict String String)
 linksFieldDecoder =
-    decodeWithDefault linksDecoder Dict.empty
+    decodeFieldWithDefault linksDecoder Dict.empty
 
 
-decodeWithDefault : Decoder a -> a -> String -> Decoder a
-decodeWithDefault decoder default name =
+decodeFieldWithDefault : Decoder a -> a -> String -> Decoder a
+decodeFieldWithDefault decoder default name =
     field name decoder |> withDefault default
 
 
