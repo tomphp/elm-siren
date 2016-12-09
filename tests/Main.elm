@@ -8,11 +8,9 @@ import Json.Encode exposing (Value)
 
 main : TestProgram
 main =
-    run emit
-        (describe "Elm Siren"
-            [ SirenTests.all
-            ]
-        )
+    run emit <|
+        describe "Elm Siren"
+            [ SirenTests.all ]
 
 
 port emit : ( String, Value ) -> Cmd msg

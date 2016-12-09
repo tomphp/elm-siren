@@ -147,6 +147,7 @@ all =
                                         Dict.empty
                                         Dict.empty
                                         []
+                                        Dict.empty
                                     ]
                                 )
                                 (map entities <| decodeJson json)
@@ -175,6 +176,41 @@ all =
                                     ]
                                 )
                                 (map entities <| decodeJson json)
+                ]
+            , describe "actions"
+                [ test "It is a dict" <|
+                    \() ->
+                        let
+                            json =
+                                "{}"
+                        in
+                            Expect.equal
+                                (Ok <| Dict.empty)
+                                (map actions <| decodeJson json)
+                , test "Can contain an action with minimum details" <|
+                    \() ->
+                        let
+                            json =
+                                """
+                                {
+                                    "actions": [ {
+                                        "name": "action-name",
+                                        "href": "http://example.com"
+                                    } ]
+                                }
+                                """
+                        in
+                            Expect.equal
+                                (Ok <|
+                                    Dict.singleton "action-name" <|
+                                        Action
+                                            "http://example.com"
+                                            Set.empty
+                                            "GET"
+                                            Nothing
+                                            []
+                                )
+                                (map actions <| decodeJson json)
                 ]
             ]
         ]

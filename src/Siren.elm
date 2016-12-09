@@ -1,6 +1,7 @@
 module Siren
     exposing
         ( Entity(..)
+        , Action
         , decodeJson
         , Value(..)
         , rels
@@ -8,6 +9,7 @@ module Siren
         , properties
         , links
         , entities
+        , actions
         )
 
 import Dict exposing (Dict)
@@ -64,15 +66,28 @@ type alias Href =
     String
 
 
+type alias Actions =
+    Dict String Action
+
+
+type alias Action =
+    { href : Href
+    , classes : Classes
+    , method : String
+    , title : Maybe String
+    , fields : List String
+    }
+
+
 type Entity
-    = Entity Rels Classes Properties Links Entities
+    = Entity Rels Classes Properties Links Entities Actions
     | EntityLink Rels Classes Href (Maybe String) (Maybe String)
 
 
 rels : Entity -> Rels
 rels e =
     case e of
-        Entity rels _ _ _ _ ->
+        Entity rels _ _ _ _ _ ->
             rels
 
         EntityLink rels _ _ _ _ ->
@@ -82,7 +97,7 @@ rels e =
 classes : Entity -> Classes
 classes e =
     case e of
-        Entity _ classes _ _ _ ->
+        Entity _ classes _ _ _ _ ->
             classes
 
         EntityLink classes _ _ _ _ ->
@@ -92,7 +107,7 @@ classes e =
 properties : Entity -> Properties
 properties e =
     case e of
-        Entity _ _ properties _ _ ->
+        Entity _ _ properties _ _ _ ->
             properties
 
         EntityLink _ _ _ _ _ ->
@@ -102,7 +117,7 @@ properties e =
 links : Entity -> Links
 links e =
     case e of
-        Entity _ _ _ links _ ->
+        Entity _ _ _ links _ _ ->
             links
 
         EntityLink _ _ _ _ _ ->
@@ -112,11 +127,21 @@ links e =
 entities : Entity -> Entities
 entities e =
     case e of
-        Entity _ _ _ _ entities ->
+        Entity _ _ _ _ entities _ ->
             entities
 
         EntityLink _ _ _ _ _ ->
             []
+
+
+actions : Entity -> Actions
+actions e =
+    case e of
+        Entity _ _ _ _ _ actions ->
+            actions
+
+        EntityLink _ _ _ _ _ ->
+            Dict.empty
 
 
 decodeJson : String -> Result String Entity
@@ -126,12 +151,13 @@ decodeJson json =
 
 entityDecoder : Decoder Entity
 entityDecoder =
-    map5 Entity
+    map6 Entity
         (setFieldDecoder "rel")
         (setFieldDecoder "class")
         (dictFieldDecoder "properties")
         (linksFieldDecoder "links")
         (lazy (\_ -> entitiesFieldDecoder "entities"))
+        (actionsFieldDecoder "actions")
 
 
 entityLinkDecoder : Decoder Entity
@@ -164,6 +190,11 @@ entitiesFieldDecoder =
 linksFieldDecoder : String -> Decoder (Dict String String)
 linksFieldDecoder =
     decodeFieldWithDefault linksDecoder Dict.empty
+
+
+actionsFieldDecoder : String -> Decoder (Dict String Action)
+actionsFieldDecoder =
+    decodeFieldWithDefault actionsDecoder Dict.empty
 
 
 decodeFieldWithDefault : Decoder a -> a -> String -> Decoder a
@@ -200,6 +231,28 @@ linkDecoder =
         map2 (,)
             (field "rel" (list string))
             (field "href" string)
+
+
+actionsDecoder : Decoder (Dict String Action)
+actionsDecoder =
+    map Dict.fromList <| list actionTupleDecoder
+
+
+actionTupleDecoder : Decoder ( String, Action )
+actionTupleDecoder =
+    map2 (,)
+        (field "name" string)
+        actionDecoder
+
+
+actionDecoder : Decoder Action
+actionDecoder =
+    map5 Action
+        (field "href" string)
+        (setFieldDecoder "class")
+        (oneOf [ field "method" string, succeed "GET" ])
+        (maybe <| field "title" string)
+        (succeed [])
 
 
 expandTuples : ( List a, b ) -> List ( a, b )
