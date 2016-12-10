@@ -1,15 +1,19 @@
 module Siren
     exposing
-        ( Entity(..)
-        , Action
-        , decodeJson
+        ( decodeJson
         , Value(..)
-        , rels
-        , classes
-        , properties
-        , links
-        , entities
-        , actions
+        , Rel
+        , Rels
+        , Class
+        , Classes
+        , Property
+        , Properties
+        , Href
+        , Links
+        , Entity(..)
+        , Entities
+        , Action
+        , Actions
         )
 
 import Dict exposing (Dict)
@@ -50,20 +54,16 @@ type alias Properties =
     Dict String Value
 
 
-type alias Link =
+type alias Href =
     String
 
 
 type alias Links =
-    Dict String Link
+    Dict String Href
 
 
 type alias Entities =
     List Entity
-
-
-type alias Href =
-    String
 
 
 type alias Actions =
@@ -82,66 +82,6 @@ type alias Action =
 type Entity
     = Entity Rels Classes Properties Links Entities Actions
     | EntityLink Rels Classes Href (Maybe String) (Maybe String)
-
-
-rels : Entity -> Rels
-rels e =
-    case e of
-        Entity rels _ _ _ _ _ ->
-            rels
-
-        EntityLink rels _ _ _ _ ->
-            rels
-
-
-classes : Entity -> Classes
-classes e =
-    case e of
-        Entity _ classes _ _ _ _ ->
-            classes
-
-        EntityLink classes _ _ _ _ ->
-            classes
-
-
-properties : Entity -> Properties
-properties e =
-    case e of
-        Entity _ _ properties _ _ _ ->
-            properties
-
-        EntityLink _ _ _ _ _ ->
-            Dict.empty
-
-
-links : Entity -> Links
-links e =
-    case e of
-        Entity _ _ _ links _ _ ->
-            links
-
-        EntityLink _ _ _ _ _ ->
-            Dict.empty
-
-
-entities : Entity -> Entities
-entities e =
-    case e of
-        Entity _ _ _ _ entities _ ->
-            entities
-
-        EntityLink _ _ _ _ _ ->
-            []
-
-
-actions : Entity -> Actions
-actions e =
-    case e of
-        Entity _ _ _ _ _ actions ->
-            actions
-
-        EntityLink _ _ _ _ _ ->
-            Dict.empty
 
 
 decodeJson : String -> Result String Entity

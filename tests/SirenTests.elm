@@ -5,6 +5,7 @@ import Expect
 import Result exposing (map)
 import Set exposing (Set)
 import Siren exposing (..)
+import Siren.Entity as Entity
 import Test exposing (..)
 
 
@@ -21,10 +22,10 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Set.fromList [ "example1", "example2" ])
-                                (map rels <| decodeJson json)
+                                (map Entity.rels <| decodeJson json)
                 , test "It is empty if the rel field was not defined" <|
                     \() ->
-                        Expect.equal (Ok Set.empty) (map rels <| decodeJson "{}")
+                        Expect.equal (Ok Set.empty) (map Entity.rels <| decodeJson "{}")
                 ]
             , describe "classes"
                 [ test "It is a Set of classes" <|
@@ -35,15 +36,15 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Set.fromList [ "example1", "example2" ])
-                                (map classes <| decodeJson json)
+                                (map Entity.classes <| decodeJson json)
                 , test "It is empty if the class field was not defined" <|
                     \() ->
-                        Expect.equal (Ok Set.empty) (map classes <| decodeJson "{}")
+                        Expect.equal (Ok Set.empty) (map Entity.classes <| decodeJson "{}")
                 ]
             , describe "properties"
                 [ test "It is an empty Dict if properties field is not defined" <|
                     \() ->
-                        Expect.equal (Ok Dict.empty) (map properties <| decodeJson "{}")
+                        Expect.equal (Ok Dict.empty) (map Entity.properties <| decodeJson "{}")
                 , test "It can contain a string property" <|
                     \() ->
                         let
@@ -52,7 +53,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.singleton "property-name" <| StringValue "string-value")
-                                (map properties <| decodeJson json)
+                                (map Entity.properties <| decodeJson json)
                 , test "It can contain an integer property" <|
                     \() ->
                         let
@@ -61,7 +62,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.singleton "property-name" <| IntValue 101)
-                                (map properties <| decodeJson json)
+                                (map Entity.properties <| decodeJson json)
                 , test "It can contain a float property" <|
                     \() ->
                         let
@@ -70,7 +71,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.singleton "property-name" <| FloatValue 1.01)
-                                (map properties <| decodeJson json)
+                                (map Entity.properties <| decodeJson json)
                 , test "It can contain a boolean property" <|
                     \() ->
                         let
@@ -79,7 +80,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.singleton "property-name" <| BoolValue True)
-                                (map properties <| decodeJson json)
+                                (map Entity.properties <| decodeJson json)
                 , test "It can contain a null property" <|
                     \() ->
                         let
@@ -88,7 +89,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.singleton "property-name" NullValue)
-                                (map properties <| decodeJson json)
+                                (map Entity.properties <| decodeJson json)
                 ]
             , describe "links"
                 [ test "It is a dict of strings" <|
@@ -99,7 +100,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.empty)
-                                (map links <| decodeJson json)
+                                (map Entity.links <| decodeJson json)
                 , test "Adds a link to the dictionary" <|
                     \() ->
                         let
@@ -108,7 +109,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.singleton "self" "http://example.com")
-                                (map links <| decodeJson json)
+                                (map Entity.links <| decodeJson json)
                 , test "Adds a link with multiple rels to the dictionary" <|
                     \() ->
                         let
@@ -117,7 +118,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.fromList [ ( "rel1", "http://example.com" ), ( "rel2", "http://example.com" ) ])
-                                (map links <| decodeJson json)
+                                (map Entity.links <| decodeJson json)
                 ]
             , describe "entities"
                 [ test "It is a list" <|
@@ -128,7 +129,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| [])
-                                (map entities <| decodeJson json)
+                                (map Entity.entities <| decodeJson json)
                 , test "Can contain a complete entity" <|
                     \() ->
                         let
@@ -150,7 +151,7 @@ all =
                                         Dict.empty
                                     ]
                                 )
-                                (map entities <| decodeJson json)
+                                (map Entity.entities <| decodeJson json)
                 , test "Can contain an entity link" <|
                     \() ->
                         let
@@ -175,7 +176,7 @@ all =
                                         (Just "Link Title")
                                     ]
                                 )
-                                (map entities <| decodeJson json)
+                                (map Entity.entities <| decodeJson json)
                 ]
             , describe "actions"
                 [ test "It is a dict" <|
@@ -186,7 +187,7 @@ all =
                         in
                             Expect.equal
                                 (Ok <| Dict.empty)
-                                (map actions <| decodeJson json)
+                                (map Entity.actions <| decodeJson json)
                 , test "Can contain an action with minimum details" <|
                     \() ->
                         let
@@ -210,7 +211,7 @@ all =
                                             Nothing
                                             []
                                 )
-                                (map actions <| decodeJson json)
+                                (map Entity.actions <| decodeJson json)
                 ]
             ]
         ]
