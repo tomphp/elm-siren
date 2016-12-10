@@ -172,33 +172,33 @@ entityLinkDecoder =
 
 setFieldDecoder : String -> Decoder (Set String)
 setFieldDecoder =
-    decodeFieldWithDefault (set string) Set.empty
+    decodeFieldWithDefault Set.empty <| (set string)
 
 
 dictFieldDecoder : String -> Decoder (Dict String Value)
 dictFieldDecoder =
-    decodeFieldWithDefault (dict valueDecoder) Dict.empty
+    decodeFieldWithDefault Dict.empty <| dict valueDecoder
 
 
 entitiesFieldDecoder : String -> Decoder (List Entity)
 entitiesFieldDecoder =
     decodeFieldWithDefault
-        (list <| oneOf [ entityLinkDecoder, entityDecoder ])
         []
+        (list <| oneOf [ entityLinkDecoder, entityDecoder ])
 
 
 linksFieldDecoder : String -> Decoder (Dict String String)
 linksFieldDecoder =
-    decodeFieldWithDefault linksDecoder Dict.empty
+    decodeFieldWithDefault Dict.empty linksDecoder
 
 
 actionsFieldDecoder : String -> Decoder (Dict String Action)
 actionsFieldDecoder =
-    decodeFieldWithDefault actionsDecoder Dict.empty
+    decodeFieldWithDefault Dict.empty actionsDecoder
 
 
-decodeFieldWithDefault : Decoder a -> a -> String -> Decoder a
-decodeFieldWithDefault decoder default name =
+decodeFieldWithDefault : a -> Decoder a -> String -> Decoder a
+decodeFieldWithDefault default decoder name =
     field name decoder |> withDefault default
 
 

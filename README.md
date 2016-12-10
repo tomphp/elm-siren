@@ -5,8 +5,11 @@ An Elm parser for Siren APIs.
 Remaining items for first release:
 
 - [x] Add embedded entity links
-- [ ] Add actions to entities
+- [x] Add actions to entities
 - [ ] Add action fields
+- [ ] Extract Entity to a module
+- [ ] Extract Action to a module
+- [ ] Extract Link to a module
 - [x] Add embedded entity representations
 - [ ] Add list entity properties
 - [ ] Add object entity properties
