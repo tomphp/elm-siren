@@ -79,6 +79,15 @@ type alias Action =
     }
 
 
+type alias Field =
+    { name : String
+    , class : List String
+    , fieldType : String
+    , value : Maybe String
+    , title : Maybe String
+    }
+
+
 type Entity
     = Entity Rels Classes Properties Links Entities Actions
     | EntityLink Rels Classes Href (Maybe String) (Maybe String)
@@ -86,60 +95,43 @@ type Entity
 
 decodeJson : String -> Result String Entity
 decodeJson =
-    decodeString entities
+    decodeString entity
 
 
-entities : Decoder Entity
-entities =
+entity : Decoder Entity
+entity =
     map6 Entity
-        (setFieldDecoder "rel")
-        (setFieldDecoder "class")
-        (dictFieldDecoder "properties")
-        (linksFieldDecoder "links")
-        (lazy (\_ -> entitiesFieldDecoder "entities"))
-        (actionsFieldDecoder "actions")
+        (fieldOrDefault "rel" Set.empty stringSet)
+        (fieldOrDefault "class" Set.empty stringSet)
+        (fieldOrDefault "properties" Dict.empty values)
+        (fieldOrDefault "links" Dict.empty links)
+        (lazy (\_ -> fieldOrDefault "entities" [] (list embeddedEntity)))
+        (fieldOrDefault "actions" Dict.empty actions)
+
+
+embeddedEntity : Decoder Entity
+embeddedEntity =
+    oneOf [ entityLink, entity ]
 
 
 entityLink : Decoder Entity
 entityLink =
     map5 EntityLink
-        (setFieldDecoder "rel")
-        (setFieldDecoder "class")
+        (fieldOrDefault "rel" Set.empty stringSet)
+        (fieldOrDefault "class" Set.empty stringSet)
         (field "href" string)
         (maybe <| field "type" string)
         (maybe <| field "title" string)
 
 
-setFieldDecoder : String -> Decoder (Set String)
-setFieldDecoder =
-    decodeFieldWithDefault Set.empty <| (set string)
+stringSet : Decoder (Set String)
+stringSet =
+    set string
 
 
-dictFieldDecoder : String -> Decoder (Dict String Value)
-dictFieldDecoder =
-    decodeFieldWithDefault Dict.empty <| dict valueDecoder
-
-
-entitiesFieldDecoder : String -> Decoder (List Entity)
-entitiesFieldDecoder =
-    decodeFieldWithDefault
-        []
-        (list <| oneOf [ entityLink, entities ])
-
-
-linksFieldDecoder : String -> Decoder (Dict String String)
-linksFieldDecoder =
-    decodeFieldWithDefault Dict.empty links
-
-
-actionsFieldDecoder : String -> Decoder (Dict String Action)
-actionsFieldDecoder =
-    decodeFieldWithDefault Dict.empty actions
-
-
-decodeFieldWithDefault : a -> Decoder a -> String -> Decoder a
-decodeFieldWithDefault default decoder name =
-    field name decoder |> withDefault default
+fieldOrDefault : String -> a -> Decoder a -> Decoder a
+fieldOrDefault name default decoder =
+    withDefault default <| field name decoder
 
 
 withDefault : a -> Decoder a -> Decoder a
@@ -147,26 +139,27 @@ withDefault default decoder =
     oneOf [ decoder, succeed default ]
 
 
-valueDecoder : Decoder Value
-valueDecoder =
-    oneOf
-        [ map StringValue string
-        , map IntValue int
-        , map FloatValue float
-        , map BoolValue bool
-        , null NullValue
-        ]
+values : Decoder (Dict String Value)
+values =
+    dict <|
+        oneOf
+            [ map StringValue string
+            , map IntValue int
+            , map FloatValue float
+            , map BoolValue bool
+            , null NullValue
+            ]
 
 
 links : Decoder (Dict String String)
 links =
-    linkDecoder
+    link
         |> list
         |> map (List.concat >> Dict.fromList)
 
 
-linkDecoder : Decoder (List ( String, String ))
-linkDecoder =
+link : Decoder (List ( String, String ))
+link =
     map denormaliseListTuple <|
         map2 (,)
             (field "rel" (list string))
@@ -189,7 +182,7 @@ action : Decoder Action
 action =
     map5 Action
         (field "href" string)
-        (setFieldDecoder "class")
+        (fieldOrDefault "class" Set.empty stringSet)
         (oneOf [ field "method" string, succeed "GET" ])
         (maybe <| field "title" string)
         (succeed [])
