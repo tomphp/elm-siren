@@ -1,5 +1,5 @@
 # elm-siren
-An Elm parser for Siren APIs.
+An Elm parser for [Siren](https://github.com/kevinswiber/siren) APIs.
 
 ## TODO
 Remaining items for first release:
