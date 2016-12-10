@@ -85,12 +85,12 @@ type Entity
 
 
 decodeJson : String -> Result String Entity
-decodeJson json =
-    decodeString entityDecoder json
+decodeJson =
+    decodeString entities
 
 
-entityDecoder : Decoder Entity
-entityDecoder =
+entities : Decoder Entity
+entities =
     map6 Entity
         (setFieldDecoder "rel")
         (setFieldDecoder "class")
@@ -100,8 +100,8 @@ entityDecoder =
         (actionsFieldDecoder "actions")
 
 
-entityLinkDecoder : Decoder Entity
-entityLinkDecoder =
+entityLink : Decoder Entity
+entityLink =
     map5 EntityLink
         (setFieldDecoder "rel")
         (setFieldDecoder "class")
@@ -124,17 +124,17 @@ entitiesFieldDecoder : String -> Decoder (List Entity)
 entitiesFieldDecoder =
     decodeFieldWithDefault
         []
-        (list <| oneOf [ entityLinkDecoder, entityDecoder ])
+        (list <| oneOf [ entityLink, entities ])
 
 
 linksFieldDecoder : String -> Decoder (Dict String String)
 linksFieldDecoder =
-    decodeFieldWithDefault Dict.empty linksDecoder
+    decodeFieldWithDefault Dict.empty links
 
 
 actionsFieldDecoder : String -> Decoder (Dict String Action)
 actionsFieldDecoder =
-    decodeFieldWithDefault Dict.empty actionsDecoder
+    decodeFieldWithDefault Dict.empty actions
 
 
 decodeFieldWithDefault : a -> Decoder a -> String -> Decoder a
@@ -158,8 +158,8 @@ valueDecoder =
         ]
 
 
-linksDecoder : Decoder (Dict String String)
-linksDecoder =
+links : Decoder (Dict String String)
+links =
     linkDecoder
         |> list
         |> map (List.concat >> Dict.fromList)
@@ -167,14 +167,14 @@ linksDecoder =
 
 linkDecoder : Decoder (List ( String, String ))
 linkDecoder =
-    map expandTuples <|
+    map denormaliseListTuple <|
         map2 (,)
             (field "rel" (list string))
             (field "href" string)
 
 
-actionsDecoder : Decoder (Dict String Action)
-actionsDecoder =
+actions : Decoder (Dict String Action)
+actions =
     map Dict.fromList <| list actionTupleDecoder
 
 
@@ -182,11 +182,11 @@ actionTupleDecoder : Decoder ( String, Action )
 actionTupleDecoder =
     map2 (,)
         (field "name" string)
-        actionDecoder
+        action
 
 
-actionDecoder : Decoder Action
-actionDecoder =
+action : Decoder Action
+action =
     map5 Action
         (field "href" string)
         (setFieldDecoder "class")
@@ -195,6 +195,6 @@ actionDecoder =
         (succeed [])
 
 
-expandTuples : ( List a, b ) -> List ( a, b )
-expandTuples ( keys, value ) =
+denormaliseListTuple : ( List a, b ) -> List ( a, b )
+denormaliseListTuple ( keys, value ) =
     List.map (\k -> ( k, value )) keys
