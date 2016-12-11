@@ -1,6 +1,7 @@
 module Siren
     exposing
-        ( linksByClass
+        ( linksByRel
+        , linksByClass
         , Action
         , Actions
         , Class
@@ -103,6 +104,11 @@ type alias Property =
 
 type alias Href =
     String
+
+
+linksByRel : String -> Entity -> Links
+linksByRel rel entity =
+    links entity |> List.filter (.rels >> Set.member rel)
 
 
 linksByClass : String -> Entity -> Links
