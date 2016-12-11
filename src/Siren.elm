@@ -1,20 +1,21 @@
 module Siren
     exposing
-        ( Value(..)
-        , Rel
-        , Rels
-        , Class
-        , Classes
-        , Property
-        , Properties
-        , Href
-        , Links
-        , Link
-        , Entity(..)
-        , Entities
+        ( linksByClass
         , Action
         , Actions
+        , Class
+        , Classes
+        , Entities
+        , Entity(..)
         , Field
+        , Href
+        , Link
+        , Links
+        , Properties
+        , Property
+        , Rel
+        , Rels
+        , Value(..)
         )
 
 import Dict exposing (Dict)
@@ -102,3 +103,18 @@ type alias Property =
 
 type alias Href =
     String
+
+
+linksByClass : String -> Entity -> Links
+linksByClass class entity =
+    links entity |> List.filter (.classes >> Set.member class)
+
+
+links : Entity -> Links
+links entity =
+    case entity of
+        Entity _ _ _ links _ _ ->
+            links
+
+        EntityLink _ _ _ _ _ ->
+            []
