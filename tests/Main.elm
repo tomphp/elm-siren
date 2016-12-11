@@ -11,8 +11,8 @@ main : TestProgram
 main =
     run emit <|
         describe "Elm Siren"
-            [ SirenTests.all
-            , Siren.DecodeTests.all
+            [ --SirenTests.all ,
+              Siren.DecodeTests.all
             ]
 
 

@@ -41,7 +41,7 @@ links e =
             links
 
         EntityLink _ _ _ _ _ ->
-            Dict.empty
+            []
 
 
 entities : Entity -> Entities
@@ -61,4 +61,4 @@ actions e =
             actions
 
         EntityLink _ _ _ _ _ ->
-            Dict.empty
+            []
