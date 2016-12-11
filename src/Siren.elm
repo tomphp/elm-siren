@@ -49,7 +49,10 @@ type alias Field =
 
 type alias Link =
     { rels : Rels
+    , classes : Classes
     , href : Href
+    , title : Maybe String
+    , mediaType : Maybe String
     }
 
 

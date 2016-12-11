@@ -49,9 +49,12 @@ entityLink =
 
 link : Decoder Link
 link =
-    map2 Link
+    map5 Link
         (field "rel" stringSet)
+        (field "class" stringSet |> default Set.empty)
         (field "href" string)
+        (field "title" string |> maybe)
+        (field "type" string |> maybe)
 
 
 action : Decoder Action

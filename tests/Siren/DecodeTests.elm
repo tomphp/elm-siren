@@ -55,7 +55,7 @@ valueTests =
 linkTests : Test
 linkTests =
     describe "link"
-        [ test "It decodes a link" <|
+        [ test "It decodes a link with minimum details" <|
             \() ->
                 let
                     json =
@@ -70,7 +70,34 @@ linkTests =
                         (Ok <|
                             Link
                                 (Set.fromList [ "rel1", "rel2" ])
+                                Set.empty
                                 "http://example.com/api/entities/123"
+                                Nothing
+                                Nothing
+                        )
+                        (decodeString link json)
+        , test "It decodes a link with all details" <|
+            \() ->
+                let
+                    json =
+                        """
+                        {
+                            "rel": ["rel1", "rel2"],
+                            "class": ["class1", "class2"],
+                            "href": "http://example.com/api/entities/123",
+                            "title": "A Link",
+                            "type": "example/type"
+                        }
+                        """
+                in
+                    Expect.equal
+                        (Ok <|
+                            Link
+                                (Set.fromList [ "rel1", "rel2" ])
+                                (Set.fromList [ "class1", "class2" ])
+                                "http://example.com/api/entities/123"
+                                (Just "A Link")
+                                (Just "example/type")
                         )
                         (decodeString link json)
         ]
@@ -308,7 +335,10 @@ entityTests =
                                 (Dict.singleton "the-property" (StringValue "the-value"))
                                 [ Link
                                     (Set.singleton "link-rel")
+                                    Set.empty
                                     "http://example.com/api/entities"
+                                    Nothing
+                                    Nothing
                                 ]
                                 []
                                 [ Action
