@@ -1,7 +1,7 @@
 module Siren
     exposing
-        ( linksByRel
-        , linksByClass
+        ( linksWithRel
+        , linksWithClass
         , Action
         , Actions
         , Class
@@ -106,13 +106,13 @@ type alias Href =
     String
 
 
-linksByRel : String -> Entity -> Links
-linksByRel rel entity =
+linksWithRel : String -> Entity -> Links
+linksWithRel rel entity =
     links entity |> List.filter (.rels >> Set.member rel)
 
 
-linksByClass : String -> Entity -> Links
-linksByClass class entity =
+linksWithClass : String -> Entity -> Links
+linksWithClass class entity =
     links entity |> List.filter (.classes >> Set.member class)
 
 

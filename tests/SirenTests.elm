@@ -10,13 +10,13 @@ import Test exposing (..)
 all : Test
 all =
     describe "Siren"
-        [ linksByRelTests
-        , linksByClassTests
+        [ linksWithRelTests
+        , linksWithClassTests
         ]
 
 
-linksByRelTests : Test
-linksByRelTests =
+linksWithRelTests : Test
+linksWithRelTests =
     let
         link1 =
             linkWithRels [ "rel1" ] "http://example.com/1"
@@ -36,18 +36,18 @@ linksByRelTests =
                 []
                 []
     in
-        describe "linksByClass"
+        describe "linksWithClass"
             [ test "It returns an empty list when no match is found" <|
                 \() ->
-                    Expect.equal [] (linksByRel "unknown" entity)
+                    Expect.equal [] (linksWithRel "unknown" entity)
             , test "It returns the matching links" <|
                 \() ->
-                    Expect.equal [ link1, link2 ] (linksByRel "rel1" entity)
+                    Expect.equal [ link1, link2 ] (linksWithRel "rel1" entity)
             ]
 
 
-linksByClassTests : Test
-linksByClassTests =
+linksWithClassTests : Test
+linksWithClassTests =
     let
         link1 =
             linkWithClasses [ "class1" ] "http://example.com/1"
@@ -67,13 +67,13 @@ linksByClassTests =
                 []
                 []
     in
-        describe "linksByClass"
+        describe "linksWithClass"
             [ test "It returns an empty list when no match is found" <|
                 \() ->
-                    Expect.equal [] (linksByClass "unknown" entity)
+                    Expect.equal [] (linksWithClass "unknown" entity)
             , test "It returns the matching links" <|
                 \() ->
-                    Expect.equal [ link1, link2 ] (linksByClass "class1" entity)
+                    Expect.equal [ link1, link2 ] (linksWithClass "class1" entity)
             ]
 
 
