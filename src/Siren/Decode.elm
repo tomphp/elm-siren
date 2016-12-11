@@ -24,12 +24,12 @@ decodeJson =
 entity : Decoder Entity
 entity =
     map6 Entity
-        (field "rel" stringSet |> withDefault Set.empty)
-        (field "class" stringSet |> withDefault Set.empty)
-        (field "properties" (dict value) |> withDefault Dict.empty)
-        (field "links" (list link) |> withDefault [])
-        (lazy (\() -> field "entities" (list embeddedEntity) |> withDefault []))
-        (field "actions" (list action) |> withDefault [])
+        (field "rel" stringSet |> default Set.empty)
+        (field "class" stringSet |> default Set.empty)
+        (field "properties" (dict value) |> default Dict.empty)
+        (field "links" (list link) |> default [])
+        (lazy (\() -> field "entities" (list embeddedEntity) |> default []))
+        (field "actions" (list action) |> default [])
 
 
 embeddedEntity : Decoder Entity
@@ -40,8 +40,8 @@ embeddedEntity =
 entityLink : Decoder Entity
 entityLink =
     map5 EntityLink
-        (field "rel" stringSet |> withDefault Set.empty)
-        (field "class" stringSet |> withDefault Set.empty)
+        (field "rel" stringSet |> default Set.empty)
+        (field "class" stringSet |> default Set.empty)
         (field "href" string)
         (field "type" string |> maybe)
         (field "title" string |> maybe)
@@ -59,20 +59,20 @@ action =
     map6 Action
         (field "name" string)
         (field "href" string)
-        (field "class" stringSet |> withDefault Set.empty)
-        (field "method" string |> withDefault "GET")
+        (field "class" stringSet |> default Set.empty)
+        (field "method" string |> default "GET")
         (field "title" string |> maybe)
-        (field "fields" (list actionField) |> withDefault [])
+        (field "fields" (list actionField) |> default [])
 
 
 actionField : Decoder Field
 actionField =
     map5 Field
         (field "name" string)
-        (succeed Set.empty)
-        (succeed "text")
-        (succeed Nothing)
-        (succeed Nothing)
+        (field "class" stringSet |> default Set.empty)
+        (field "type" string |> default "text")
+        (field "value" string |> maybe)
+        (field "title" string |> maybe)
 
 
 value : Decoder Siren.Value
@@ -91,6 +91,6 @@ stringSet =
     set string
 
 
-withDefault : a -> Decoder a -> Decoder a
-withDefault default decoder =
+default : a -> Decoder a -> Decoder a
+default default decoder =
     oneOf [ decoder, succeed default ]

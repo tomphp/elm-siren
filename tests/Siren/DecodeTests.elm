@@ -95,7 +95,30 @@ actionFieldTests =
                                 Nothing
                         )
                         (decodeString actionField json)
-          -- FULL DETAILS
+        , test "It decodes a field with all details" <|
+            \() ->
+                let
+                    json =
+                        """
+                        {
+                            "name": "the-field",
+                            "class": ["the-class"],
+                            "type": "email",
+                            "value": "something@example.com",
+                            "title": "The Field"
+                        }
+                        """
+                in
+                    Expect.equal
+                        (Ok <|
+                            Field
+                                "the-field"
+                                (Set.singleton "the-class")
+                                "email"
+                                (Just "something@example.com")
+                                (Just "The Field")
+                        )
+                        (decodeString actionField json)
         ]
 
 
