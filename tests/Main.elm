@@ -4,6 +4,7 @@ import Test exposing (describe)
 import SirenTests
 import Siren.DecodeTests
 import Siren.EntityTests
+import Siren.ValueTests
 import Test.Runner.Node exposing (run, TestProgram)
 import Json.Encode exposing (Value)
 
@@ -15,6 +16,7 @@ main =
             [ SirenTests.all
             , Siren.EntityTests.all
             , Siren.DecodeTests.all
+            , Siren.ValueTests.all
             ]
 
 
