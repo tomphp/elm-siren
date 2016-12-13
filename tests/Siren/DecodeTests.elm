@@ -5,7 +5,7 @@ import Expect
 import Json.Decode exposing (decodeString)
 import Result
 import Set
-import Siren exposing (..)
+import Siren.Entity exposing (..)
 import Siren.Decode exposing (..)
 import Test exposing (..)
 
@@ -256,12 +256,13 @@ entityLinkTests =
             \() ->
                 Expect.equal
                     (Ok <|
-                        EntityLink
-                            Set.empty
-                            Set.empty
-                            "http://example.com/api/entities/55"
-                            Nothing
-                            Nothing
+                        EmbeddedLink
+                            { rels = Set.empty
+                            , classes = Set.empty
+                            , href = "http://example.com/api/entities/55"
+                            , mediaType = Nothing
+                            , title = Nothing
+                            }
                     )
                     (decodeString entityLink "{\"href\": \"http://example.com/api/entities/55\"}")
         , test "It decodes an entityLink all details" <|
@@ -280,12 +281,13 @@ entityLinkTests =
                 in
                     Expect.equal
                         (Ok <|
-                            EntityLink
-                                (Set.singleton "the-rel")
-                                (Set.singleton "the-class")
-                                "http://example.com/api/entities/77"
-                                (Just "the-type")
-                                (Just "The Title")
+                            EmbeddedLink
+                                { rels = Set.singleton "the-rel"
+                                , classes = Set.singleton "the-class"
+                                , href = "http://example.com/api/entities/77"
+                                , mediaType = Just "the-type"
+                                , title = Just "The Title"
+                                }
                         )
                         (decodeString entityLink json)
         ]
@@ -365,20 +367,22 @@ entityTests =
                 in
                     Expect.equal
                         (Ok <|
-                            Entity
-                                Set.empty
-                                Set.empty
-                                Dict.empty
-                                []
-                                [ Entity
-                                    Set.empty
-                                    (Set.singleton "embedded")
-                                    Dict.empty
-                                    []
-                                    []
-                                    []
+                            { rels = Set.empty
+                            , classes = Set.empty
+                            , properties = Dict.empty
+                            , links = []
+                            , entities =
+                                [ EmbeddedRepresentation
+                                    { rels = Set.empty
+                                    , classes = Set.singleton "embedded"
+                                    , properties = Dict.empty
+                                    , links = []
+                                    , entities = []
+                                    , actions = []
+                                    }
                                 ]
-                                []
+                            , actions = []
+                            }
                         )
                         (decodeString entity json)
         , test "It decodes an entity with an embedded entity link" <|
@@ -395,19 +399,21 @@ entityTests =
                 in
                     Expect.equal
                         (Ok <|
-                            Entity
-                                Set.empty
-                                Set.empty
-                                Dict.empty
-                                []
-                                [ EntityLink
-                                    Set.empty
-                                    Set.empty
-                                    "http://example.com/embedded"
-                                    Nothing
-                                    Nothing
+                            { rels = Set.empty
+                            , classes = Set.empty
+                            , properties = Dict.empty
+                            , links = []
+                            , entities =
+                                [ EmbeddedLink
+                                    { rels = Set.empty
+                                    , classes = Set.empty
+                                    , href = "http://example.com/embedded"
+                                    , mediaType = Nothing
+                                    , title = Nothing
+                                    }
                                 ]
-                                []
+                            , actions = []
+                            }
                         )
                         (decodeString entity json)
         ]

@@ -9,7 +9,7 @@ module Siren.Decode
         , value
         )
 
-import Siren exposing (..)
+import Siren.Entity exposing (..)
 import Set exposing (Set)
 import Dict
 import Json.Decode exposing (..)
@@ -32,19 +32,20 @@ entity =
         (field "actions" (list action) |> default [])
 
 
-embeddedEntity : Decoder Entity
+embeddedEntity : Decoder EmbeddedEntity
 embeddedEntity =
-    oneOf [ entityLink, entity ]
+    oneOf [ entityLink, map EmbeddedRepresentation entity ]
 
 
-entityLink : Decoder Entity
+entityLink : Decoder EmbeddedEntity
 entityLink =
-    map5 EntityLink
-        (field "rel" stringSet |> default Set.empty)
-        (field "class" stringSet |> default Set.empty)
-        (field "href" string)
-        (field "type" string |> maybe)
-        (field "title" string |> maybe)
+    map EmbeddedLink <|
+        map5 EntityLink
+            (field "rel" stringSet |> default Set.empty)
+            (field "class" stringSet |> default Set.empty)
+            (field "href" string)
+            (field "type" string |> maybe)
+            (field "title" string |> maybe)
 
 
 link : Decoder Link
@@ -78,7 +79,7 @@ actionField =
         (field "title" string |> maybe)
 
 
-value : Decoder Siren.Value
+value : Decoder Siren.Entity.Value
 value =
     oneOf
         [ map StringValue string
