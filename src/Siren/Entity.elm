@@ -18,13 +18,11 @@ module Siren.Entity
         , Property
         , Rel
         , Rels
-        , Value(..)
         )
 
 import Dict exposing (Dict)
-import Json.Decode exposing (..)
-import Json.Decode.Extra exposing (set)
 import Set exposing (Set)
+import Siren.Value exposing (Value(..))
 
 
 type alias Entity =
@@ -79,14 +77,6 @@ type alias Link =
     }
 
 
-type Value
-    = StringValue String
-    | IntValue Int
-    | FloatValue Float
-    | BoolValue Bool
-    | NullValue
-
-
 type alias Links =
     List Link
 
@@ -100,7 +90,7 @@ type alias Classes =
 
 
 type alias Properties =
-    Dict String Value
+    Dict String Property
 
 
 type alias Entities =

@@ -9,11 +9,12 @@ module Siren.Decode
         , value
         )
 
-import Siren.Entity exposing (..)
-import Set exposing (Set)
 import Dict
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing (set)
+import Set exposing (Set)
+import Siren.Entity exposing (..)
+import Siren.Value exposing (Value(..))
 
 
 decodeJson : String -> Result String Entity
@@ -79,7 +80,7 @@ actionField =
         (field "title" string |> maybe)
 
 
-value : Decoder Siren.Entity.Value
+value : Decoder Siren.Value.Value
 value =
     oneOf
         [ map StringValue string

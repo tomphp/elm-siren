@@ -5,8 +5,9 @@ import Expect
 import Json.Decode exposing (decodeString)
 import Result
 import Set
-import Siren.Entity exposing (..)
 import Siren.Decode exposing (..)
+import Siren.Entity exposing (..)
+import Siren.Value exposing (Value(..))
 import Test exposing (..)
 
 
