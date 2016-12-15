@@ -2,22 +2,18 @@ module Siren.Entity
     exposing
         ( linksWithRel
         , linksWithClass
+        , embeddedEntitiesWithClass
+        , embeddedEntities
+        , firstLinkWithRel
+        , propertyString
+        , property
         , Action
-        , Actions
-        , Class
-        , Classes
         , EmbeddedEntity(..)
-        , Entities
         , Entity
         , EntityLink
         , Field
-        , Href
         , Link
-        , Links
-        , Properties
         , Property
-        , Rel
-        , Rels
         )
 
 import Dict exposing (Dict)
@@ -26,19 +22,19 @@ import Siren.Value exposing (Value(..))
 
 
 type alias Entity =
-    { rels : Rels
-    , classes : Classes
-    , properties : Properties
-    , links : Links
-    , entities : Entities
-    , actions : Actions
+    { rels : Set String
+    , classes : Set String
+    , properties : Dict String Property
+    , links : List Link
+    , entities : List EmbeddedEntity
+    , actions : List Action
     }
 
 
 type alias EntityLink =
-    { rels : Rels
-    , classes : Classes
-    , href : Href
+    { rels : Set String
+    , classes : Set String
+    , href : String
     , mediaType : Maybe String
     , title : Maybe String
     }
@@ -51,8 +47,8 @@ type EmbeddedEntity
 
 type alias Action =
     { name : String
-    , href : Href
-    , classes : Classes
+    , href : String
+    , classes : Set String
     , method : String
     , title : Maybe String
     , fields : List Field
@@ -61,7 +57,7 @@ type alias Action =
 
 type alias Field =
     { name : String
-    , classes : Classes
+    , classes : Set String
     , fieldType : String
     , value : Maybe String
     , title : Maybe String
@@ -69,59 +65,69 @@ type alias Field =
 
 
 type alias Link =
-    { rels : Rels
-    , classes : Classes
-    , href : Href
+    { rels : Set String
+    , classes : Set String
+    , href : String
     , title : Maybe String
     , mediaType : Maybe String
     }
-
-
-type alias Links =
-    List Link
-
-
-type alias Rels =
-    Set String
-
-
-type alias Classes =
-    Set Class
-
-
-type alias Properties =
-    Dict String Property
-
-
-type alias Entities =
-    List EmbeddedEntity
-
-
-type alias Actions =
-    List Action
-
-
-type alias Rel =
-    String
-
-
-type alias Class =
-    String
 
 
 type alias Property =
     Value
 
 
-type alias Href =
-    String
+linksWithRel : String -> Entity -> List Link
+linksWithRel rel =
+    .links >> List.filter (.rels >> Set.member rel)
 
 
-linksWithRel : String -> Entity -> Links
-linksWithRel rel entity =
-    entity.links |> List.filter (.rels >> Set.member rel)
+firstLinkWithRel : String -> Entity -> Maybe Link
+firstLinkWithRel name =
+    linksWithRel name >> List.head
 
 
-linksWithClass : String -> Entity -> Links
-linksWithClass class entity =
-    entity.links |> List.filter (.classes >> Set.member class)
+linksWithClass : String -> Entity -> List Link
+linksWithClass class =
+    .links >> List.filter (.classes >> Set.member class)
+
+
+property : String -> Entity -> Maybe Value
+property name =
+    .properties >> Dict.get name
+
+
+propertyString : String -> Entity -> Maybe String
+propertyString name =
+    property name >> Maybe.map Siren.Value.toString
+
+
+embeddedEntitiesWithClass : String -> Entity -> List Entity
+embeddedEntitiesWithClass class =
+    embeddedEntities >> List.filter (hasClass class)
+
+
+embeddedEntities : Entity -> List Entity
+embeddedEntities =
+    .entities
+        >> List.map embeddedEntity
+        >> List.filterMap identity
+
+
+
+-- private
+
+
+hasClass : String -> { a | classes : Set String } -> Bool
+hasClass class =
+    .classes >> Set.member class
+
+
+embeddedEntity : EmbeddedEntity -> Maybe Entity
+embeddedEntity entity =
+    case entity of
+        EmbeddedRepresentation record ->
+            Just record
+
+        EmbeddedLink record ->
+            Nothing
